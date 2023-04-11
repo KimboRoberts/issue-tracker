@@ -1,0 +1,26 @@
+{
+  "name": "issue-tracker",
+  "version": "1.0.0",
+  "description": "Full stack application to track issues",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "nodemon": "file:..."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KimboRoberts/issue-tracker.git"
+  },
+  "author": "Kim Roberts",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KimboRoberts/issue-tracker/issues"
+  },
+  "homepage": "https://github.com/KimboRoberts/issue-tracker#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "5.1"
+  }
+}
