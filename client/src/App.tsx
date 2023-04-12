@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { getAllUsers } from '../src/lib/api/users';
+import { UserHttpResponse, User } from '../src/types/types';
 
 function App() {
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<[User] | []>([]);
 
   useEffect(() => {
     getAllUsers()
-      .then((res: any) => {
-        setUsers(res.data)
+      .then((res: [User]) => {
+        setUsers(res)
       })
       .catch((err: any) => {
         console.error(err);
@@ -16,7 +17,7 @@ function App() {
   }, [])
 
   return <>
-    { users.map((user, i) => {
+    { users.map((user: User, i) => {
       return <article key={i}>
         <p>Username: {user.username}</p>
         <p>Password: {user.password}</p>

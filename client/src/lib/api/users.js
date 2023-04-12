@@ -6,9 +6,10 @@ let headersList = {
 }
 
 export const getAllUsers = async () => {
+    
     const response = await axios.get(baseUrl, {
         headers: headersList
     });
     
-    return response;
+    return response.data;
 }
