@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { clusterUri, dbName } = require('../config/mongoDB');
+const { logger } = require('../log');
 
 const dbConnect = async () => {
 
@@ -8,7 +9,7 @@ const dbConnect = async () => {
             useUnifiedTopology: true,
             dbName: dbName,
     }).then(() => {
-        console.log('Connected to the Database.');
+        logger.info(`Successfully connected to database: [${dbName}]`)
     }).catch(err => {
         console.error(err)
     });
