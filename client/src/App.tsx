@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getAllUsers } from '../src/lib/api/users';
-import { UserHttpResponse, User } from '../src/types/types';
+import { User } from '../src/types/types';
 
 function App() {
 
