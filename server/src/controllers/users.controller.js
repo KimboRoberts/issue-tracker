@@ -6,5 +6,5 @@ const getAllUsers = async (req, res, next) => {
 };
 
 module.exports = {
-    getAllUsers
+    getAllUsers,
 }
