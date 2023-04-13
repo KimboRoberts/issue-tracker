@@ -1,19 +1,35 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const winston = require('winston');
+const expressWinston = require('express-winston');
 const port = process.env.PORT || 3001;
+
+const usersRouter = require('./src/routes/users.route');
+const authRouter = require('./src/routes/auth.route');
+
 const User = require('./src/models/user');
 const AuthToken = require('./src/models/authToken');
 const version = require('./src/config/version');
-const ticketsRouter = require('./src/routes/tickets.route');
-const usersRouter = require('./src/routes/users.route');
-const authRouter = require('./src/routes/auth.route');
+const { logger, combinedFormat } = require('./src/log');
 const { dbConnect } = require('./src/lib/mongoDB');
-const cors = require('cors');
 
 dbConnect();
 
 app.use(cors());
 app.use(express.json())
+
+app.use(expressWinston.logger({
+    transports: [
+      new winston.transports.Console()
+    ],
+    format: combinedFormat,
+    meta: false,
+    msg: "HTTP {{req.method}} {{req.url}}",
+    expressFormat: true,
+    colorize: false,
+    ignoreRoute: function (req, res) { return false; }
+  }));
 
 app.get('/health-check', (req, res) => {
     res.json({'message:': `App running [v${version}]`}).status(200);
@@ -26,10 +42,9 @@ app.delete('/reset', async (req, res) => {
     res.sendStatus(204);
 });
 
-app.use('/tickets', ticketsRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
 app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+    logger.info(`Server is listening on port ${port}`);
 });

@@ -1,6 +1,9 @@
 const authService = require('../services/auth.service');
+const { logger } = require('../log');
 
 const register = async(req, res, next) => {
+    logger.info('Called [register]; location: src/controllers/auth.contoller.js');
+
     const user = {
         username: req.body.username,
         email: req.body.email,
@@ -16,11 +19,15 @@ const register = async(req, res, next) => {
 };
 
 const logout = async(req, res, next) => {
+    logger.info('Called [logout]; location: src/controllers/auth.contoller.js');
+
     await authService.logout(req.user.username);
     res.sendStatus(204);
 }
 
 const login = async (req, res, next) => {
+    logger.info('Called [login]; location: src/controllers/auth.contoller.js');
+
     const userData = {
         username: req.body.username,
         password: req.body.password,
