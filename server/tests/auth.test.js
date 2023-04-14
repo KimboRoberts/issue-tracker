@@ -16,10 +16,10 @@ beforeAll(async () => {
     await AuthToken.deleteMany({});
   });
   
-  afterAll(async () => {
+afterAll(async () => {
     await mongoose.connection.close();
     server.close();
-  });
+});
 
 describe("First test", () => {
     it("Should pass the test", async () => {
@@ -50,4 +50,57 @@ describe("POST /auth/register", () => {
         expect(authQuery[0]).toHaveProperty('token');
 
     })
+});
+
+describe("POST /auth/register - username already exists", () => {
+    it("Should return HTTP 409 and body containing an array with 'username' in it", async () => {
+        const res = await request(app).post("/auth/register").send({
+            username: "kimroberts",
+            email: "kim.roberts@live.co.uk",
+            password: "Esaradev2!",
+        });
+
+        expect(res.statusCode).toBe(409);
+        expect(res.body).toContainEqual('username');
+    });
+});
+
+describe("POST /auth/register - email already exists", () => {
+    it("Should return HTTP 409 and body containing an array with 'email' in it", async () => {
+        const res = await request(app).post("/auth/register").send({
+            username: "kimroberts",
+            email: "kim.roberts@live.co.uk",
+            password: "Esaradev2!",
+        });
+
+        expect(res.statusCode).toBe(409);
+        expect(res.body).toContainEqual('email');
+    });
+});
+
+describe("POST /auth/register - username and email already exist", () => {
+    it("Should return HTTP 409 and body containing an array with 'username' and 'email' in it", async () => {
+        const res = await request(app).post("/auth/register").send({
+            username: "kimroberts",
+            email: "kim.roberts@live.co.uk",
+            password: "Esaradev2!",
+        });
+
+        expect(res.statusCode).toBe(409);
+        expect(res.body).toContainEqual('username');
+        expect(res.body).toContainEqual('email');
+    });
+});
+
+describe("POST /auth/register - invalid password", () => {
+    it("Should return HTTP 409 and body containing an array with 'username' and 'email' in it", async () => {
+        const res = await request(app).post("/auth/register").send({
+            username: "johndoe",
+            email: "kohndoe@live.co.uk",
+            password: "badpassword!",
+        });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('errorMessage');
+    });
 });
