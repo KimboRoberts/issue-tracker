@@ -1,12 +1,19 @@
 const authService = require('../services/auth.service');
 const { logger } = require('../log');
 const { isValidPassword } = require('../lib/utils');
+const { check, validationResult } = require('express-validator');
 
 const register = async(req, res, next) => {
     logger.info('Called [register]; location: src/controllers/auth.contoller.js');
 
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).send({errorMessage: 'Username cannot be empty'});
+    }
+
     if (req.body.password && !isValidPassword(req.body.password)) {
-        return res.status(400).send({errorMessage: "Invalid password"});
+        return res.status(400).send({errorMessage: 'Invalid password'});
     }
     
     const user = {
@@ -41,7 +48,7 @@ const login = async (req, res, next) => {
     if (token == null) {
         return res.sendStatus(403);
     }
-    res.send({token: token}); 
+    res.status(201).send({token: token}); 
 }
 
 module.exports = {
