@@ -10,7 +10,6 @@ const authRouter = require('./src/routes/auth.route');
 
 const User = require('./src/models/user');
 const AuthToken = require('./src/models/authToken');
-const version = require('./src/config/version');
 const { logger, combinedFormat } = require('./src/log');
 const { dbConnect } = require('./src/lib/mongoDB');
 
@@ -32,7 +31,7 @@ app.use(expressWinston.logger({
   }));
 
 app.get('/health-check', (req, res) => {
-    res.json({'message:': `App running [v${version}]`}).status(200);
+    res.json({'message:': `App running [v${process.env.VERSION}]`}).status(200);
 });
 
 app.delete('/reset', async (req, res) => {
@@ -45,6 +44,11 @@ app.delete('/reset', async (req, res) => {
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     logger.info(`Server is listening on port ${port}`);
 });
+
+module.exports = {
+    app,
+    server
+}

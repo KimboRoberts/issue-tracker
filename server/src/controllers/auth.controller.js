@@ -1,9 +1,14 @@
 const authService = require('../services/auth.service');
 const { logger } = require('../log');
+const { isValidPassword } = require('../lib/utils');
 
 const register = async(req, res, next) => {
     logger.info('Called [register]; location: src/controllers/auth.contoller.js');
 
+    if (req.body.password && !isValidPassword(req.body.password)) {
+        return res.status(400).send({errorMessage: "Invalid password"});
+    }
+    
     const user = {
         username: req.body.username,
         email: req.body.email,
