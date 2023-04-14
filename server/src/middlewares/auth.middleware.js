@@ -1,4 +1,3 @@
-const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const AuthToken = require('../models/authToken');
 const { logger } = require('../log');
@@ -51,14 +50,16 @@ async function authorise(req, res, next) {
 
     if (!token) return res.sendStatus(401);
 
-    // decode token; set user
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async(err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
+    await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async(err, user) => {
+        if (!err && user) {
+            req.user = user
+        }
     });
 
+    if (!req.user) return res.sendStatus(403);
+
     // check if user logged in
-    if (!(await AuthToken.findOne({username: req.user.username}))) {
+    if (!await AuthToken.findOne({username: req.user.username})) {
         return res.sendStatus(403);
     }
     next();

@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Board = require('../models/boards.model');
 const { logger } = require('../log');
 const { isEmail, isAlphanumeric, isLength, isStrongPassword } = require('validator');
 
@@ -17,7 +18,6 @@ const validateUsername = (username) => {
     }
 
     if (!isLength(username, {min: 8, max: 16})) {
-        console.log('here');
         errors.push({
             param: 'Username',
             message: 'Username must be between 8 and 16 characters'
@@ -93,6 +93,31 @@ const validatePassword = (password) => {
     return errors;
 }
 
+const validateBoardName = (boardName) => {
+    logger.info('Called [validateBoardName]; location: src/lib/validation.js');
+
+    errors = [];
+
+    // Check if exists
+    if (!boardName) {
+        errors.push({
+            param: 'Board name',
+            message: 'Board name not provided'
+        });
+        return errors;
+    }
+
+    // Check length
+    if (!isLength(boardName, {min: 1, max: 30})) {
+        errors.push({
+            param: 'Board name',
+            message: 'Board name must be less than or equal to 30 characters'
+        }); 
+    }
+
+    return errors;
+}
+
 const usernameIsUnique = async (username) => {
     logger.info('Called [usernameIsUnique]; location: src/lib/validation.js');
 
@@ -111,11 +136,23 @@ const emailIsUnique = async (email) => {
     return true;
 }
 
+const boardNameIsUnique = async (boardName, username) => {
+    logger.info('Called [boardNameIsUnique]; location: src/lib/validation.js');
+
+    if (await Board.findOne({username: username, board_name: boardName}).exec()) {
+        console.log('returning false');
+        return false;
+    }
+    return true;
+}
+
 module.exports = {
     validateUsername,
     validateEmail,
     validatePassword,
     usernameIsUnique,
     emailIsUnique,
+    boardNameIsUnique,
+    validateBoardName
 }
 

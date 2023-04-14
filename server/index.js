@@ -7,6 +7,7 @@ const port = process.env.PORT || 3001;
 
 const usersRouter = require('./src/routes/users.route');
 const authRouter = require('./src/routes/auth.route');
+const boardsRouter = require('./src/routes/boards.route');
 
 const User = require('./src/models/user');
 const AuthToken = require('./src/models/authToken');
@@ -43,6 +44,7 @@ app.delete('/reset', async (req, res) => {
 
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/boards', boardsRouter);
 
 const server = app.listen(port, () => {
     logger.info(`Server is listening on port ${port}`);

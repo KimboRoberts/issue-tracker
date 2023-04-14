@@ -6,6 +6,8 @@ const User = require('../src/models/user');
 const AuthToken = require('../src/models/authToken');
 require("dotenv").config();
 
+let token;
+
 beforeAll(async () => {
     await mongoose.connect(process.env.DB_URI, {
         useNewUrlParser: true,
@@ -17,6 +19,8 @@ beforeAll(async () => {
   });
   
 afterAll(async () => {
+    await User.deleteMany({});
+    await AuthToken.deleteMany({});
     await mongoose.connection.close();
     server.close();
 });
@@ -30,6 +34,7 @@ describe("First test", () => {
 // Register
 describe("POST /auth/register", () => {
     it("Should return HTTP 201 and an auth token. User and auth token should be present in database", async () => {
+
         const res = await request(app).post("/auth/register").send({
             username: "kimroberts",
             email: "kim.roberts@live.co.uk",
@@ -43,7 +48,7 @@ describe("POST /auth/register", () => {
         expect(res.body).toHaveProperty('token')
 
         // store token for future tests
-        var token = res.body.token;
+        token = res.body.token;
 
         expect(userQuery).toHaveLength(1);
         expect(userQuery[0]).toHaveProperty('username', 'kimroberts');
