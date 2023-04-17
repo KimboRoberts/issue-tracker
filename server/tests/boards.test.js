@@ -1,14 +1,15 @@
-const mongoose = require("mongoose");
-const request = require("supertest");
+const mongoose = require('mongoose');
+const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const { app, server } = require('../index');
 
 const User = require('../src/models/user');
 const AuthToken = require('../src/models/authToken');
 const Board = require('../src/models/boards.model');
-require("dotenv").config();
+require('dotenv').config();
 
 let token;
+let board_id;
 
 beforeAll(async () => {
     await mongoose.connect(process.env.DB_URI, {
@@ -21,9 +22,9 @@ beforeAll(async () => {
     await Board.deleteMany({});
 
     const user = await User.create({
-        username: "kimroberts",
-        email: "kim.roberts@live.co.uk",
-        password: "Esaradev4!"
+        username: 'kimroberts',
+        email: 'kim.roberts@live.co.uk',
+        password: 'Esaradev4!'
     });
 
     token = jwt.sign({username: user.username, email: user.email, password: user.password}, process.env.ACCESS_TOKEN_SECRET);
@@ -39,28 +40,30 @@ afterAll(async () => {
     server.close();
 });
 
-describe("First test", () => {
-    it("Should pass the test", async () => {
+describe('First test', () => {
+    it('Should pass the test', async () => {
         expect(true);
     })
 });
 
-describe("POST /boards - No auth token provided", () => {
-    it("Should return HTTP status code 401", async () => {
-        const res = await request(app).post("/boards").send({
-            board_name: "Issue Tracker Project"
+// Create board
+
+describe('POST /boards - No auth token provided', () => {
+    it('Should return HTTP status code 401', async () => {
+        const res = await request(app).post('/boards').send({
+            board_name: 'Issue Tracker Project'
         });
 
         expect(res.statusCode).toBe(401);
     })
 });
 
-describe("POST /boards - Invalid auth token provided", () => {
-    it("Should return HTTP status code 403", async () => {
-        const res = await request(app).post("/boards")
+describe('POST /boards - Invalid auth token provided', () => {
+    it('Should return HTTP status code 403', async () => {
+        const res = await request(app).post('/boards')
         .set('Authorization', 'Bearer testtesttest')
         .send({
-            board_name: "Issue Tracker Project"
+            board_name: 'Issue Tracker Project'
         });
 
         expect(res.statusCode).toBe(403);
@@ -68,9 +71,9 @@ describe("POST /boards - Invalid auth token provided", () => {
 });
 
 
-describe("POST /boards - No board name provided", () => {
-    it("Should return HTTP status code 400 and body with errors array", async () => {
-        const res = await request(app).post("/boards")
+describe('POST /boards - No board name provided', () => {
+    it('Should return HTTP status code 400 and body with errors array', async () => {
+        const res = await request(app).post('/boards')
         .set('Authorization', `Bearer ${token}`)
         .send();
 
@@ -81,11 +84,11 @@ describe("POST /boards - No board name provided", () => {
     });
 });
 
-describe("POST /boards - Invalid board name: too  (>30 chars)", () => {
-    it("Should return HTTP status code 400 and body with errors array", async () => {
-        const res = await request(app).post("/boards")
+describe('POST /boards - Invalid board name: too  (>30 chars)', () => {
+    it('Should return HTTP status code 400 and body with errors array', async () => {
+        const res = await request(app).post('/boards')
         .set('Authorization', `Bearer ${token}`).send({
-            board_name: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" 
+            board_name: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' 
         });
 
         expect(res.statusCode).toBe(400);
@@ -95,38 +98,81 @@ describe("POST /boards - Invalid board name: too  (>30 chars)", () => {
     });
 });
 
-describe("POST /boards", () => {
-    it("Should return HTTP status 201. New board should be present in database", async () => {
-        const res = await request(app).post("/boards")
+describe('POST /boards', () => {
+    it('Should return HTTP status 201. New board should be present in database', async () => {
+        const res = await request(app).post('/boards')
         .set('Authorization', `Bearer ${token}`)
         .send({
-            board_name: "Issue Tracker Project"
+            board_name: 'Issue Tracker Project'
         });
 
-        const boardQuery = await Board.find({username: "kimroberts", board_name: "Issue Tracker Project"});
+        const boardQuery = await Board.find({username: 'kimroberts', board_name: 'Issue Tracker Project'});
 
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('board_id');
-        expect(boardQuery).toHaveLength(1);        
+        expect(boardQuery).toHaveLength(1);
+        
+        board_id = res.body.board_id;
     })
 });
 
-describe("POST /boards", () => {
-    it("Should return HTTP status 409 and body with errors array", async () => {
-        const res = await request(app).post("/boards")
+describe('POST /boards - board namealready exists for user', () => {
+    it('Should return HTTP status 409 and body with errors array', async () => {
+        const res = await request(app).post('/boards')
         .set('Authorization', `Bearer ${token}`)
         .send({
-            board_name: "Issue Tracker Project"
+            board_name: 'Issue Tracker Project'
         });
 
-        const boardQuery = await Board.find({username: "kimroberts", board_name: "Issue Tracker Project"});
+        const boardQuery = await Board.find({username: 'kimroberts', board_name: 'Issue Tracker Project'});
 
         expect(res.statusCode).toBe(409);
         expect(res.body).toHaveProperty('errors');
         expect(res.body.errors).toHaveLength(1);
-        expect(res.body.errors).toContainEqual({param: "Board name", message: "Board with that name already exists in your account"});
+        expect(res.body.errors).toContainEqual({param: 'Board name', message: 'Board with that name already exists in your account'});
         expect(boardQuery).toHaveLength(1);        
     })
+});
+
+// Get board
+
+describe('GET /boards/:id - No auth token provided', () => {
+    it('Should return HTTP 401', async () => {
+        const res = await request (app).get(`/boards/${board_id}`);
+        expect(res.statusCode).toBe(401);
+    });
+});
+
+describe('GET /boards/:id - Invalid auth token provided', () => {
+    it('Should return HTTP 409', async () => {
+        const res = await request (app).get(`/boards/${board_id}`)
+            .set('Authorization', 'testtesttest').send();
+        
+        expect(res.statusCode).toBe(403);
+    });
+});
+
+describe('GET /boards/:id - No board found', () => {
+    it('Should return HTTP 404', async () => {
+        const res = await request (app).get('/boards/1234')
+            .set('Authorization', `Bearer ${token}`).send();
+        
+        expect(res.statusCode).toBe(404);
+    });
+});
+
+describe('GET /boards/:id', () => {
+    it('Should return HTTP 200 and body with board data', async () => {
+        const res = await request (app).get(`/boards/${board_id}`)
+            .set('Authorization', `Bearer ${token}`).send();
+        
+        expect(res.statusCode).toBe(200);
+        expect(res.body._id).toBe(board_id);
+        expect(res.body.username).toBe('kimroberts');
+        expect(res.body.board_name).toBe('Issue Tracker Project');
+        expect(res.body.board_name).toBeEqual([]);
+        expect(res.body).toHaveProperty('creation_date');
+    });
 });
   
 afterAll(async () => {
