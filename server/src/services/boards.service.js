@@ -1,4 +1,5 @@
 const Board = require('../models/boards.model');
+const mongoose = require('mongoose');
 const { logger } = require('../log');
 
 const create = async (boardData) => {
@@ -12,6 +13,20 @@ const create = async (boardData) => {
     });
     return board.id;
 }
+
+const get = async (board_id) => {
+    logger.info('Called [get]; location: src/services/boards.service.js');
+    let board;
+    try {
+        const id = new mongoose.Types.ObjectId(board_id);
+        board = await Board.findById(id);
+    } catch {
+        board = null
+    }
+    return board;
+}
+
 module.exports = {
-    create
+    create,
+    get
 }

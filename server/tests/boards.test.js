@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const { app, server } = require('../index');
+require('dotenv').config();
 
 const User = require('../src/models/user');
 const AuthToken = require('../src/models/authToken');
 const Board = require('../src/models/boards.model');
-require('dotenv').config();
 
 let token;
 let board_id;
@@ -66,7 +66,7 @@ describe('POST /boards - Invalid auth token provided', () => {
             board_name: 'Issue Tracker Project'
         });
 
-        expect(res.statusCode).toBe(403);
+        expect(res.statusCode).toBe(401);
     })
 });
 
@@ -134,7 +134,7 @@ describe('POST /boards - board namealready exists for user', () => {
     })
 });
 
-// Get board
+// Get board by ID
 
 describe('GET /boards/:id - No auth token provided', () => {
     it('Should return HTTP 401', async () => {
@@ -144,11 +144,11 @@ describe('GET /boards/:id - No auth token provided', () => {
 });
 
 describe('GET /boards/:id - Invalid auth token provided', () => {
-    it('Should return HTTP 409', async () => {
+    it('Should return HTTP 401', async () => {
         const res = await request (app).get(`/boards/${board_id}`)
             .set('Authorization', 'testtesttest').send();
         
-        expect(res.statusCode).toBe(403);
+        expect(res.statusCode).toBe(401);
     });
 });
 
@@ -170,10 +170,11 @@ describe('GET /boards/:id', () => {
         expect(res.body._id).toBe(board_id);
         expect(res.body.username).toBe('kimroberts');
         expect(res.body.board_name).toBe('Issue Tracker Project');
-        expect(res.body.board_name).toBeEqual([]);
+        expect(res.body.columns).toStrictEqual([]);
         expect(res.body).toHaveProperty('creation_date');
     });
 });
+
   
 afterAll(async () => {
     await mongoose.connection.close();

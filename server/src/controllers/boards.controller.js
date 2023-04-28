@@ -13,6 +13,17 @@ const create = async (req, res, next) => {
     });
 }
 
+const get = async (req, res, next) => {
+    logger.info('Called [get]; location: src/controllers/boards.controller.js');
+
+    const board = await boardsService.get(req.params.id)
+    if (!board) {
+        return res.sendStatus(404);
+    }
+    res.status(200).send(board);
+}
+
 module.exports = {
-    create
+    create,
+    get
 }

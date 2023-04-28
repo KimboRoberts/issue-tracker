@@ -56,7 +56,7 @@ async function authorise(req, res, next) {
         }
     });
 
-    if (!req.user) return res.sendStatus(403);
+    if (!req.user) return res.sendStatus(401);
 
     // check if user logged in
     if (!await AuthToken.findOne({username: req.user.username})) {

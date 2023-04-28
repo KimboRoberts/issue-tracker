@@ -140,7 +140,6 @@ const boardNameIsUnique = async (boardName, username) => {
     logger.info('Called [boardNameIsUnique]; location: src/lib/validation.js');
 
     if (await Board.findOne({username: username, board_name: boardName}).exec()) {
-        console.log('returning false');
         return false;
     }
     return true;
