@@ -23,7 +23,18 @@ const get = async (req, res, next) => {
     res.status(200).send(board);
 }
 
+const getAllByUsername = async (req, res, next) => {
+
+    logger.info('Called [getAllByUsername]; location: src/controllers/boards.controller.js');
+
+    const boards = await boardsService.getAllByUsername(req.user.username);
+
+    return res.status(200).send(boards);
+
+}
+
 module.exports = {
     create,
-    get
+    get,
+    getAllByUsername,
 }

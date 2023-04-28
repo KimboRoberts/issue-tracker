@@ -7,7 +7,7 @@ const create = async (boardData) => {
     
     const board = await Board.create({
         board_name: boardData.board_name,
-        username: boardData.username,
+        users: [boardData.username],
         columns: [],
         creation_date: new Date().getTime()
     });
@@ -26,7 +26,14 @@ const get = async (board_id) => {
     return board;
 }
 
+const getAllByUsername = async (username) => {
+    const boards = await Board.find({users: username});
+    // console.log(boards);
+    return boards;
+}
+
 module.exports = {
     create,
-    get
+    get,
+    getAllByUsername,
 }

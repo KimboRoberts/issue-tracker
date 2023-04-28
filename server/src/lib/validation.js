@@ -139,7 +139,7 @@ const emailIsUnique = async (email) => {
 const boardNameIsUnique = async (boardName, username) => {
     logger.info('Called [boardNameIsUnique]; location: src/lib/validation.js');
 
-    if (await Board.findOne({username: username, board_name: boardName}).exec()) {
+    if (await Board.findOne({users: username, board_name: boardName}).exec()) {
         return false;
     }
     return true;

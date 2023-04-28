@@ -106,7 +106,7 @@ describe('POST /boards', () => {
             board_name: 'Issue Tracker Project'
         });
 
-        const boardQuery = await Board.find({username: 'kimroberts', board_name: 'Issue Tracker Project'});
+        const boardQuery = await Board.find({users: 'kimroberts', board_name: 'Issue Tracker Project'});
 
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('board_id');
@@ -124,7 +124,7 @@ describe('POST /boards - board namealready exists for user', () => {
             board_name: 'Issue Tracker Project'
         });
 
-        const boardQuery = await Board.find({username: 'kimroberts', board_name: 'Issue Tracker Project'});
+        const boardQuery = await Board.find({users: 'kimroberts', board_name: 'Issue Tracker Project'});
 
         expect(res.statusCode).toBe(409);
         expect(res.body).toHaveProperty('errors');
@@ -168,10 +168,38 @@ describe('GET /boards/:id', () => {
         
         expect(res.statusCode).toBe(200);
         expect(res.body._id).toBe(board_id);
-        expect(res.body.username).toBe('kimroberts');
+        expect(res.body.users).toContain('kimroberts');
         expect(res.body.board_name).toBe('Issue Tracker Project');
         expect(res.body.columns).toStrictEqual([]);
         expect(res.body).toHaveProperty('creation_date');
+    });
+});
+
+// Get all boards by userID
+
+describe('GET /boards  - No auth token provided', () => {
+    it('Should return HTTP 401', async () => {
+        const res = await request (app).get(`/boards?username=kimroberts`);
+        expect(res.statusCode).toBe(401);
+    });
+});
+
+describe('GET /boards - Invalid auth token provided', () => {
+    it('Should return HTTP 401', async () => {
+        const res = await request (app).get(`/boards?username=kimroberts`)
+            .set('Authorization', 'testtesttest').send();
+        
+        expect(res.statusCode).toBe(401);
+    });
+});
+
+describe('GET /boards', () => {
+    it('Should return list containing one board', async () => {
+        const res = await request (app).get('/boards?username=kimroberts')
+            .set('Authorization', `Bearer ${token}`).send();
+        
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toStrictEqual([]);
     });
 });
 

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const boardSchema = new mongoose.Schema({
-    username: String,
+    users: [String],
     board_name: String,
     creation_date: Date,
     columns: [String],

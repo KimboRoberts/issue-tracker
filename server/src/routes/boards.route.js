@@ -6,5 +6,6 @@ const { validateCreateBoard } = require('../middlewares/boards.middleware');
 
 router.post('/', [authorise, validateCreateBoard] ,boardsController.create);
 router.get('/:id', [authorise], boardsController.get);
+router.get('/', [authorise], boardsController.getAllByUsername);
 
 module.exports = router;
